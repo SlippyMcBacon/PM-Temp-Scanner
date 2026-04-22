@@ -221,7 +221,6 @@ def process_location(place, airport, year, month, day):
     finally:
         driver.quit()
 
-
 if __name__ == "__main__":
     start_time = time.perf_counter()
 
