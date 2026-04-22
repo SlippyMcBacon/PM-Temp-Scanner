@@ -10,6 +10,13 @@ import re
 import calendar
 import random
 
+# do for every place/airport ticker pair in a list
+# go to wunderground + get high for the airport
+# https://www.wunderground.com/hourly/{airport ticker}/date/{year}-{month}-{day}
+# go to robinhood website and get the cheapest contract that is < 3 degrees of high
+# https://robinhood.com/us/en/prediction-markets/climate/events/{place}-daily-temperature-high-{full month name}-{day}-{year}-{month abreviated name}-{day}-{year}/
+# print temperature of cheapest contract found and what place it is in
+
 locations = [
     ("washington-dc", "KDCA"),
     ("los-angeles", "KLAX"),
@@ -244,12 +251,6 @@ if __name__ == "__main__":
                     best_contract = (place, best)
             else:
                 print(f"{place}: N/A")
-    # do for every place/airport ticker pair in a list
-    # go to wunderground + get high for the airport
-    # https://www.wunderground.com/hourly/{airport ticker}/date/{year}-{month}-{day}
-    # go to robinhood website and get the cheapest contract that is < 3 degrees of high
-    # https://robinhood.com/us/en/prediction-markets/climate/events/{place}-daily-temperature-high-{full month name}-{day}-{year}-{month abreviated name}-{day}-{year}/
-    # print temperature of cheapest contract found and what place it is in
     print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
