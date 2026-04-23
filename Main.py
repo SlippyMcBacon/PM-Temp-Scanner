@@ -197,7 +197,7 @@ def get_best_contract(driver, place, year, month, day, max_temp):
             price = int(price_match.group(1))
 
             # Filter < 3°F
-            if temp_val <= max_temp - 3 and price > 0:
+            if temp_val <= max_temp - temp_range and price > 0:
                 contracts.append((temp_val, price))
 
         except:
@@ -231,9 +231,11 @@ def process_location(place, airport, year, month, day):
 if __name__ == "__main__":
     start_time = time.perf_counter()
 
+    temp_range = 3
+
     year = 2026
     month = 4
-    day = 22
+    day = 23
 
     best_contract = ("test", (999,999))
 
