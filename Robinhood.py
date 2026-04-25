@@ -235,10 +235,12 @@ if __name__ == "__main__":
 
     year = 2026
     month = 4
-    day = 23
+    day = 25
+    #dad started 4/24/26
+    #off days: 1
 
-    best_contract = ("test", (999,999))
-
+    contracts = []
+    print("|||||||||||||||||||||||")
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = [
             executor.submit(process_location, place, airport, year, month, day)
@@ -247,13 +249,19 @@ if __name__ == "__main__":
 
         for f in futures:
             place, best = f.result()
+            print("|", end="")
             if best is not None:
-                print(f"{place}: {best[0]} at {best[1]}c")
-                if(best[1] < best_contract[1][1]):
-                    best_contract = (place, best)
-            else:
-                print(f"{place}: N/A")
-    print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
+                contracts.append(best + (place,))
+                #print(f"{place}: {best[0]} at {best[1]}c")
+                #if(best[1] < best_contract[1][1]):
+                #    best_contract = (place, best)
+            #else:
+                #print(f"{place}: N/A")
+    #print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
+    contracts = sorted(contracts, key=lambda x: x[1], reverse=True)
+    print("")
+    for i in contracts:
+        print(f"{i[2]}: {i[0]} at {i[1]}c")
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
     print(f"Elapsed time: {elapsed_time / 60: .0f}:{elapsed_time % 60:.0f}")
