@@ -69,7 +69,7 @@ def get_driver():
     options.add_argument("--disable-dev-shm-usage")
 
     #use system installed chrome driver
-    service = Service("/usr/bin/chromedriver")
+    service = Service()
     return webdriver.Chrome(service=service, options=options)
 
 def get_max_temp(driver, airport, date_str):
@@ -298,7 +298,7 @@ if __name__ == "__main__":
     #print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
     contracts = sorted(contracts, key=lambda x: x[1])
     #print("")
-    message = [("test")]
+    message = ["test"]
     for i in contracts[:3]:
         message.append(f"{i[2]}: {i[0]} at {i[1]}c {i[3]}")
 
