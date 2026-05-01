@@ -239,7 +239,7 @@ def process_location(place, airport, year, month, day):
 
     except Exception as e:
         print(f"FAILED: {place} ({airport}) → {e}")
-        return place, None
+        return place, None, 0
 
     finally:
         driver.quit()
