@@ -9,6 +9,8 @@ import time
 import re
 import calendar
 import random
+import os
+import requests
 
 # do for every place/airport ticker pair in a list
 # go to wunderground + get high for the airport
@@ -78,7 +80,8 @@ def get_max_temp(driver, airport, date_str):
     wait = WebDriverWait(driver, 20)
 
     # Wait for actual numbers, not just table cells
-    temps = []
+    max = 0
+    count = 0
 
     for cell in cells:
         try:
@@ -87,14 +90,20 @@ def get_max_temp(driver, airport, date_str):
             text = span.text.strip()
 
             if text.isdigit():
-                temps.append(int(text))
+                value = int(text)
+
+                if value > max:
+                    max = value
+                    count = 1
+                elif value == max:
+                    count += 1
         except:
             continue
 
-    if not temps:
+    if max == 0:
         raise Exception("No temperatures found")
 
-    return max(temps)
+    return max, count
 
 def safe_get_max_temp(driver, airport, date_str, retries=3):
     for attempt in range(retries):
@@ -139,12 +148,12 @@ def expand_all_contracts(driver, wait):
             # DOM refreshed → retry loop
         #    continue
 
-def get_best_contract(driver, place, year, month, day, max_temp):
+def get_best_contract(driver, place, year, month, day, max_temp, count):
     month_full, month_abbr, _ = format_date_parts(year, month, day)
-
+    day2 = f"{day:02d}"
     url = f"https://robinhood.com/us/en/prediction-markets/climate/events/" \
           f"{place}-daily-temperature-high-{month_full}-{day}-{year}-" \
-          f"{month_abbr}-{day}-{year}/"
+          f"{month_abbr}-{day2}-{year}/"
 
     driver.get(url)
 
@@ -199,6 +208,8 @@ def get_best_contract(driver, place, year, month, day, max_temp):
             # Filter < 3°F
             if temp_val <= max_temp - temp_range and price > 0:
                 contracts.append((temp_val, price))
+            elif temp_val <= max_temp - (temp_range - 1) and price > 0 and count > 2:
+                contracts.append((temp_val, price))
 
         except:
             continue
@@ -215,11 +226,10 @@ def process_location(place, airport, year, month, day):
     driver = get_driver()
     try:
         _, _, date_str = format_date_parts(year, month, day)
+        temp, count = safe_get_max_temp(driver, airport, date_str)
+        best = get_best_contract(driver, place, year, month, day, temp, count)
 
-        temp = safe_get_max_temp(driver, airport, date_str)
-        best = get_best_contract(driver, place, year, month, day, temp)
-
-        return (place, best)
+        return place, best, count
 
     except Exception as e:
         print(f"FAILED: {place} ({airport}) → {e}")
@@ -228,19 +238,40 @@ def process_location(place, airport, year, month, day):
     finally:
         driver.quit()
 
+def send_pushover(message: str, title: str = "Stock Tracker"):
+    user_key = os.getenv("PUSHOVER_USER_KEY")
+    api_token = os.getenv("PUSHOVER_API_TOKEN")
+
+    if not user_key or not api_token:
+        print("[Warn] Pushover credentials not set.")
+        return
+
+    try:
+        requests.post(
+            "https://api.pushover.net/1/messages.json",
+            data={
+                "token": api_token,
+                "user": user_key,
+                "title": title,
+                "message": message,
+            },
+            timeout=10,
+        )
+        print("[Info] Pushover notification sent.")
+    except Exception as e:
+        print(f"[Warn] Failed to send notification: {e}")
 if __name__ == "__main__":
     start_time = time.perf_counter()
 
     temp_range = 3
 
     year = 2026
-    month = 4
-    day = 25
-    #dad started 4/24/26
-    #off days: 1
+    month = 5
+    day = 1
+    #good days: 2
 
     contracts = []
-    print("|||||||||||||||||||||||")
+    #print("|||||||||||||||||||||||")
     with ThreadPoolExecutor(max_workers=3) as executor:
         futures = [
             executor.submit(process_location, place, airport, year, month, day)
@@ -248,20 +279,23 @@ if __name__ == "__main__":
         ]
 
         for f in futures:
-            place, best = f.result()
-            print("|", end="")
-            if best is not None:
-                contracts.append(best + (place,))
+            place, best, count = f.result()
+            #print("|", end="")
+            if best is not None and best[1] < 80:
+                contracts.append(best + (place,) + (count,))
                 #print(f"{place}: {best[0]} at {best[1]}c")
                 #if(best[1] < best_contract[1][1]):
                 #    best_contract = (place, best)
             #else:
                 #print(f"{place}: N/A")
     #print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
-    contracts = sorted(contracts, key=lambda x: x[1], reverse=True)
-    print("")
-    for i in contracts:
-        print(f"{i[2]}: {i[0]} at {i[1]}c")
+    contracts = sorted(contracts, key=lambda x: x[1])
+    #print("")
+    message = []
+    for i in contracts[:3]:
+        message.append(f"{i[2]}: {i[0]} at {i[1]}c {i[3]}")
+
+    send_pushover("\n".join(message), "Temp Scanner")
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
     print(f"Elapsed time: {elapsed_time / 60: .0f}:{elapsed_time % 60:.0f}")
