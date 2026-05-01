@@ -11,6 +11,7 @@ import calendar
 import random
 import os
 import requests
+from datetime import datetime
 
 # do for every place/airport ticker pair in a list
 # go to wunderground + get high for the airport
@@ -53,6 +54,7 @@ def format_date_parts(year, month, day):
 
 def get_driver():
     options = webdriver.ChromeOptions()
+    options.binary_location = "/usr/bin/google-chrome"
     options.add_argument("--headless=new")
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -269,9 +271,10 @@ if __name__ == "__main__":
 
     temp_range = 3
 
-    year = 2026
-    month = 5
-    day = 1
+    today = datetime.now()
+    year = today.year
+    month = today.month
+    day = today.day
     #good days: 2
 
     contracts = []
@@ -295,11 +298,11 @@ if __name__ == "__main__":
     #print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
     contracts = sorted(contracts, key=lambda x: x[1])
     #print("")
-    message = []
+    message = [("test")]
     for i in contracts[:3]:
         message.append(f"{i[2]}: {i[0]} at {i[1]}c {i[3]}")
 
-    send_pushover("\n".join(message), "Temp Scanner")
+    send_pushover("\n".join(message[:3]), "Temp Scanner")
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
     print(f"Elapsed time: {elapsed_time / 60: .0f}:{elapsed_time % 60:.0f}")
