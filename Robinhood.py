@@ -270,6 +270,7 @@ if __name__ == "__main__":
     start_time = time.perf_counter()
 
     temp_range = 3
+    price_range = 70
 
     today = datetime.now()
     year = today.year
@@ -288,7 +289,7 @@ if __name__ == "__main__":
         for f in futures:
             place, best, count = f.result()
             #print("|", end="")
-            if best is not None and best[1] < 80:
+            if best is not None and best[1] < price_range:
                 contracts.append(best + (place,) + (count,))
                 #print(f"{place}: {best[0]} at {best[1]}c")
                 #if(best[1] < best_contract[1][1]):
@@ -298,11 +299,12 @@ if __name__ == "__main__":
     #print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
     contracts = sorted(contracts, key=lambda x: x[1])
     #print("")
-    message = ["test"]
-    for i in contracts[:3]:
-        message.append(f"{i[2]}: {i[0]} at {i[1]}c {i[3]}")
+    if len(contracts) > 0:
+        message = []
+        for i in contracts[:3]:
+            message.append(f"{i[2]}: {i[0]} at {i[1]}c {i[3]}")
+        send_pushover("\n".join(message[:3]), "Temp Scanner")
 
-    send_pushover("\n".join(message[:3]), "Temp Scanner")
     end_time = time.perf_counter()
     elapsed_time = end_time - start_time
     print(f"Elapsed time: {elapsed_time / 60: .0f}:{elapsed_time % 60:.0f}")
