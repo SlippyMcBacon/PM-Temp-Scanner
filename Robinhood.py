@@ -54,6 +54,7 @@ def format_date_parts(year, month, day):
 def get_driver():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.page_load_strategy = 'eager'
     prefs = {
@@ -64,7 +65,10 @@ def get_driver():
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+    #use system installed chrome driver
+    service = Service("/usr/bin/chromedriver")
+    return webdriver.Chrome(service=service, options=options)
 
 def get_max_temp(driver, airport, date_str):
     url = f"https://www.wunderground.com/hourly/{airport}/date/{date_str}"
@@ -272,7 +276,7 @@ if __name__ == "__main__":
 
     contracts = []
     #print("|||||||||||||||||||||||")
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         futures = [
             executor.submit(process_location, place, airport, year, month, day)
             for place, airport in locations
