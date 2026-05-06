@@ -214,7 +214,7 @@ def get_best_contract(driver, place, year, month, day, max_temp, count):
             # Filter < 3°F
             if temp_val <= max_temp - temp_range and price > 0:
                 contracts.append((temp_val, price))
-            elif temp_val <= max_temp - (temp_range - 1) and price > 0 and count > 2:
+            elif temp_val <= max_temp - (temp_range - 1) and price > 0 and count > 2 and use_count:
                 contracts.append((temp_val, price))
 
         except:
@@ -271,6 +271,7 @@ if __name__ == "__main__":
 
     temp_range = 3
     price_range = 70
+    use_count = False
 
     today = datetime.now()
     year = today.year
