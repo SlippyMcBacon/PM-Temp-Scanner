@@ -270,7 +270,7 @@ if __name__ == "__main__":
     start_time = time.perf_counter()
 
     temp_range = 3
-    price_range = 70
+    price_range = 79
     use_count = False
 
     today = datetime.now()
