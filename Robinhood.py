@@ -286,6 +286,8 @@ if __name__ == "__main__":
     day = today.day
     #good days: 2
 
+    best_contract = ("test", (999, 999))
+
     contracts = []
     #print("|||||||||||||||||||||||")
     with ThreadPoolExecutor(max_workers=2) as executor:
@@ -293,7 +295,6 @@ if __name__ == "__main__":
             executor.submit(process_location, place, airport, year, month, day)
             for place, airport in locations
         ]
-
         for f in futures:
             place, best, count = f.result()
             #print("|", end="")
