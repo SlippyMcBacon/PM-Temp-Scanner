@@ -297,11 +297,12 @@ if __name__ == "__main__":
         for f in futures:
             place, best, count = f.result()
             #print("|", end="")
-            if best is not None and best[1] < price_range:
-                contracts.append(best + (place,) + (count,))
+            if best is not None:
                 print(f"{place}: {best[0]} at {best[1]}c {best[2]}")
-                #if(best[1] < best_contract[1][1]):
-                #    best_contract = (place, best)
+                if best[1] < price_range:
+                    contracts.append(best + (place,) + (count,))
+                    #if(best[1] < best_contract[1][1]):
+                    #    best_contract = (place, best)
             else:
                 print(f"{place}: N/A")
     #print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
