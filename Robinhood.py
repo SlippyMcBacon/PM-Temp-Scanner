@@ -11,7 +11,8 @@ import calendar
 import random
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 # do for every place/airport ticker pair in a list
 # go to wunderground + get high for the airport
@@ -273,7 +274,13 @@ if __name__ == "__main__":
     price_range = 79
     use_count = False
 
-    today = datetime.now()
+    # Get current time in US Eastern timezone
+    today = datetime.now(ZoneInfo("America/New_York"))
+
+    # If after 8 PM Eastern, target next day
+    if today.hour >= 20:
+        today += timedelta(days=1)
+
     year = today.year
     month = today.month
     day = today.day
@@ -292,7 +299,7 @@ if __name__ == "__main__":
             #print("|", end="")
             if best is not None and best[1] < price_range:
                 contracts.append(best + (place,) + (count,))
-                #print(f"{place}: {best[0]} at {best[1]}c")
+                print(f"{place}: {best[0]} at {best[1]}c")
                 #if(best[1] < best_contract[1][1]):
                 #    best_contract = (place, best)
             #else:
