@@ -2,7 +2,8 @@ name: Run Robinhood Temp Scanner
 
 on:
   schedule:
-    - cron: "10 */1 * * *"  #runs every 1 hour
+    - cron: "17 * * * *"  #runs every 1 hour
+    - cron: "47 * * * *"
   workflow_dispatch:        # allows manual runs
 
 jobs:
