@@ -298,14 +298,14 @@ if __name__ == "__main__":
             place, best, count = f.result()
             #print("|", end="")
             if best is not None:
-                print(f"{place}: {best[0]} at {best[1]}c {best[2]}")
+                print(f"{place}: {best[0]} at {best[1]}c {count}")
                 if best[1] < price_range:
                     contracts.append(best + (place,) + (count,))
-                    #if(best[1] < best_contract[1][1]):
-                    #    best_contract = (place, best)
+                if best[1] < best_contract[1][1]:
+                    best_contract = (place, best)
             else:
                 print(f"{place}: N/A")
-    #print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
+    print(f"Best = {best_contract[0]} at {best_contract[1][0]} for {best_contract[1][1]}c")
     contracts = sorted(contracts, key=lambda x: x[1])
     #print("")
     if len(contracts) > 0:
