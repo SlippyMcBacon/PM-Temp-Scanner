@@ -271,7 +271,7 @@ if __name__ == "__main__":
     start_time = time.perf_counter()
 
     temp_range = 3
-    price_range = 79
+    price_range = 85
     use_count = False
 
     # Get current time in US Eastern timezone
